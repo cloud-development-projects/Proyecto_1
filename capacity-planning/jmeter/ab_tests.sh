@@ -34,7 +34,7 @@ echo
 # Concurrency levels to test
 for c in 10 50 100 200 500
 do
-  echo "▶ Running test with $c concurrent users..."
+  echo "Running test with $c concurrent users..."
   RESULT_FILE="$RESULTS_DIR/ab_c${c}.txt"
 
   # Run ab and capture output
