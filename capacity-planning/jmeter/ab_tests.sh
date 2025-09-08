@@ -10,7 +10,7 @@
 
 URL="http://localhost:8080/api/public/videos"
 TOTAL_REQUESTS=500   # total number of requests per test
-RESULTS_DIR="./capacity-planning/results"
+RESULTS_DIR="./capacity-planning/jmeter/results"
 
 # Create results directory if it does not exist
 mkdir -p $RESULTS_DIR
