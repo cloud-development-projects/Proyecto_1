@@ -6,7 +6,7 @@
 # This script runs quick load tests using Apache Bench (ab)
 # against the public API endpoint.
 #
-# Results: stored as text files in ./capacity-planning/results/
+# Results: stored as text files in ./capacity-planning/jmeter/results/
 
 URL="http://localhost:8080/api/public/videos"
 TOTAL_REQUESTS=500   # total number of requests per test
