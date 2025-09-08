@@ -44,23 +44,42 @@ Monitoreo:
 ### Escenario 1 — Ruta Crítica de Usuario
 **Flujo:**  
 `POST /auth/signup` → `POST /auth/login` → `POST /videos/upload` → `GET /videos`  
+**Objetivo:** Validar tiempos de respuesta en operaciones más usadas por el usuario.  
 - Usuarios concurrentes: **10, 50, 100, 200, 500**
-- Validar latencia, throughput y errores en cada incremento.
+- Ramp-up: **30s**
+- Métricas: tiempo de respuesta promedio y p95, throughput, tasa de errores.
 
 ### Escenario 2 — Procesamiento Batch
-Simular cola masiva de videos:
-- Encolar **100 tareas** de procesamiento en Asynq simultáneamente.
-- Monitorear el tiempo hasta que el **100% de los videos** pasen a estado `processed`.
-- Validar que el worker no caiga y que el consumo de CPU se mantenga aceptable.
+**Flujo:**  
+Encolar **100 tareas de procesamiento de video** simultáneamente y esperar hasta que todas pasen a estado `processed`.  
+- Medir tiempo total de procesamiento.
+- Medir consumo de CPU y memoria del worker.
+- Validar que no existan fallos de procesamiento (DLQ vacío al final).
 
 ---
 
-## 5. Parámetros de Configuración
-- `docker-compose` en modo producción (`GO_ENV=production`).
-- Workers de Asynq: 5 hilos de concurrencia.
-- JMeter: ramp-up gradual de usuarios en 30s.
-- Métricas recolectadas cada 1s.
+## 5. Estrategia de Pruebas
+- **Prueba de humo:** 10 usuarios concurrentes, confirmar que endpoints responden 2xx.
+- **Prueba de carga progresiva:** Escalar 10 → 500 usuarios concurrentes, medir degradación.
+- **Prueba de estrés:** Aumentar usuarios hasta que la latencia p95 supere 1s para encontrar el punto de saturación.
 
 ---
 
-## 6. Topología de Prueba
+## 6. Parámetros de Configuración
+- **JMeter:** Thread Group con usuarios configurables, ramp-up 30s, loop 1.
+- **Apache Bench (smoke test):**
+
+**ab** → Apache Bench, herramienta de benchmarking.  
+**-n 500** → Número total de solicitudes que se van a enviar (500 requests en total).  
+**-c 50** → Número de solicitudes concurrentes (50 usuarios simultáneos).  
+
+`http://localhost:8080/api/public/videos` → URL del endpoint que se va a probar (en tu caso, listar videos).  
+
+---
+
+## 7. Topología de Prueba
+
+```text
+[JMeter/AB Client] --> [Nginx] --> [API (Gin)] --> [PostgreSQL + Redis]
+                                     |
+                                     --> [Worker Asynq] --> [ffmpeg processing]
