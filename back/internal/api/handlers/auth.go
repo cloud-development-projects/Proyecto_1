@@ -167,7 +167,7 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authService.GetUserByID(userID.(int))
+	user, err := h.authService.GetUserByID(int(userID.(int64)))
 	if err != nil {
 		c.JSON(http.StatusNotFound, models.APIResponse{
 			Error: "User not found",
