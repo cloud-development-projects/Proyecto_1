@@ -19,6 +19,21 @@ func SetupRoutes(db *sql.DB, cfg *config.Config, taskQueue *workers.TaskQueue, v
 	router := gin.New()
 	router.Use(gin.Recovery(), gin.Logger())
 
+	router.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		c.Header("Access-Control-Allow-Origin", origin)
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+
 	// Inicializar handlers inyectando dependencias
 	authHandler := handlers.NewAuthHandler(db, cfg)
 	videoHandler := handlers.NewVideoHandler(db, cfg, taskQueue, videoService)
@@ -38,6 +53,9 @@ func SetupRoutes(db *sql.DB, cfg *config.Config, taskQueue *workers.TaskQueue, v
 	{
 		authGroup.POST("/signup", authHandler.Signup)
 		authGroup.POST("/login", authHandler.Login)
+		
+		authGroup.GET("/profile", middleware.AuthMiddleware(cfg), authHandler.GetProfile)
+
 	}
 
 	// Protected video routes
