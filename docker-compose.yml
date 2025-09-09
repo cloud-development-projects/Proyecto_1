@@ -129,23 +129,23 @@ services:
       - anb_network
     restart: unless-stopped
 
-  #frontend:
-  #  build:
-  #    context: ./front
-  #    dockerfile: Dockerfile
-  #  container_name: anb_frontend
-  #  ports:
-  #    - "3000:3000"
-  #  volumes:
-  #    - ./front:/app
-  #    - frontend_modules:/app/node_modules
-  #  depends_on:
-  #    - postgres
-  #    - api
-  #    - worker
-  #  networks:
-  #    - anb_network
-  #  restart: unless-stopped
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: anb_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front:/app
+      - frontend_modules:/app/node_modules
+    depends_on:
+      - postgres
+      - api
+      - worker
+    networks:
+      - anb_network
+    restart: unless-stopped
   
   nginx:
     image: nginx:alpine
