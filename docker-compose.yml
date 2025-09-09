@@ -168,7 +168,7 @@ volumes:
   postgres_data:
   video_uploads:
   video_processed:
-  #frontend_modules:
+  frontend_modules:
 
 networks:
   anb_network:
