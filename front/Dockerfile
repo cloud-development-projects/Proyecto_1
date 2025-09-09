@@ -1,15 +1,10 @@
-FROM node:alpine AS builder
-
-RUN apk add --no-cache gcompat
+FROM node:18 as build
 
 WORKDIR /app
-
-# Copy package and install dependencies
-COPY package*.json ./
+COPY package.json package-lock.json* ./
 RUN npm install
-
 COPY . .
+RUN npm run build
 
 EXPOSE 3000
-
 CMD ["npm", "start"]
